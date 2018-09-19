@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <style type="text/css">
+    	* {
+    		padding: 0;
+    		margin: 0;
+    	}
+		#box1 {
+			width: 500px;
+			height: 20px;
+			background: #999;
+			position: relative;
+			margin: 20px auto;
+		}
+		#box2 {
+			width: 20px;
+			height: 20px;
+			background: green;
+			position: absolute;
+		}
+		#box3 {
+			width: 0;
+			height: 0;
+			margin: 20px auto;
+		}
+		 #box3 img {
+  			width: 100%;
+			height: 100%;
+		}
+    </style>
+</head>
+<body>
+	<div id="box1">
+    <div id="box2"></div>
+    </div>
+    <div id="box3">
+    	<img src="./1.jpg">
+    </div>
+</body>
+<script type="text/javascript">
+		// 获取dom元素
+		var oBox1 = document.getElementById('box1');
+		var oBox2 = document.getElementById('box2');
+		var oBox3 = document.getElementById('box3');
+
+		// 按下滚动条后的操作
+		oBox2.onmousedown = function(e) {
+			// 获取事件的必备操作，保证事件被获取
+			var oEvent = e || event
+
+			// 保证只有被按下滚动条后才能执行此函数
+			document.onmousemove = function(e) {
+				var oEvent = e || event
+				var l = oEvent.clientX - oBox1.offsetLeft
+				// 获取滚动条可活动的宽度范围
+				var wid = oBox1.offsetWidth - oBox2.offsetWidth
+				if (l < 0) {
+					l = 0
+				} else if (l > wid) {
+					l = wid
+				}
+				// 位置定位
+				oBox2.style.left = l + 'px'
+
+				// 根据滚动条位置获得比例
+				var scale = l / wid
+				// 图片的宽度和高度
+				var w = 3264 * scale
+				var h = 4080 * scale
+
+				oBox3.style.cssText += 'width:' + w + 'px;height:' + h + 'px;'
+			}
+
+			// 保证鼠标松开后事件不再执行
+			document.onmouseup = function() {
+				document.onmousemove = null
+				document.onmousedown = null
+			}
+		}
+</script>
+</html>
