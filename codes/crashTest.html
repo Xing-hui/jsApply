@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<body>
+    <div id="box" style="background: #334;width: 100px;height: 100px;position: absolute;cursor: move;z-index: 999;"></div>
+    <div id="box2" style="background: green;width: 100px;height: 100px;position: absolute;top: 200px;left: 500px;"></div>
+</body>
+<script type="text/javascript">
+	(function () {
+		var dragging = false
+		var boxX, boxY, mouseX, mouseY, offsetX, offsetY
+		var box = document.getElementById('box')
+		var box2 = document.getElementById('box2')
+		var box2X, box2Y
+
+		// 鼠标按下的动作
+		box.onmousedown = down
+		// 鼠标的移动动作
+		document.onmousemove = move
+		// 释放鼠标的动作
+		document.onmouseup = up
+
+		// 鼠标按下后的函数,e为事件对象
+		function down(e) {
+			dragging = true
+			
+			// 获取元素所在的坐标
+			boxX = box.offsetLeft
+			boxY = box.offsetTop
+
+			// 获取元素box2所在的坐标
+			box2X = box2.offsetLeft
+			box2Y = box2.offsetTop
+
+			// 获取鼠标所在的坐标
+			mouseX = parseInt(getMouseXY(e).x)
+			mouseY = parseInt(getMouseXY(e).y)
+
+			// 鼠标相对元素左和上边缘的坐标
+			offsetX = mouseX - boxX
+			offsetY = mouseY - boxY
+		}
+
+		// 鼠标移动调用的函数
+		function move(e){
+			if (dragging) {
+				// 获取移动后的元素的坐标
+				var x = getMouseXY(e).x - offsetX
+				var y = getMouseXY(e).y - offsetY
+
+				// 计算可移动位置的大小， 保证元素不会超过可移动范围
+				var width = document.documentElement.clientWidth - box.offsetWidth
+				var height = document.documentElement.clientHeight - box.offsetHeight
+
+				// min方法保证不会超过右边界，max保证不会超过左边界
+				x = Math.min(Math.max(0, x), width)
+				y = Math.min(Math.max(0, y), height)
+
+				// 给元素及时定位
+				box.style.left = x + 'px'
+				box.style.top = y + 'px'
+
+				// 碰撞检测
+				// x坐标值的范围判断，y坐标值的范围判断
+				var judge_x = (x >= box2X - box2.offsetWidth) && (x <= box2X + box2.offsetWidth)
+				var judge_y = (y >= box2Y - box2.offsetHeight) && (y <= box2Y + box2.offsetHeight)
+				if (judge_x && judge_y) {
+					console.log("碰撞到")
+				}
+			}
+		}
+
+		// 释放鼠标的函数
+		function up(e){
+			dragging = false
+		}
+
+		// 函数用于获取鼠标的位置
+		function getMouseXY(e){
+			var x = 0, y = 0
+			e = e || window.event
+			
+			if (e.pageX) {
+				x = e.pageX
+				y = e.pageY
+			} else {
+				x = e.clientX + document.body.scrollLeft - document.body.clientLeft
+				y = e.clientY + document.body.scrollTop - document.body.clientTop
+			}
+			return {
+				x: x,
+				y: y
+			}
+		}
+	})()
+</script>
+</html>
