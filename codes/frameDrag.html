@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>带框拖拽</title>
+  <style type="text/css">
+    .div1{
+      width:400px;
+      height: 400px;
+      background: blue;
+      position: relative;
+      margin: 20px;
+    }
+    .drag1{
+      width: 100px;
+      height: 100px;
+      background: red;
+      position: absolute;
+    }
+    .box{
+      border: 1px dashed black;
+      position: absolute;
+    }
+  </style>
+</head>
+<body>
+  <div id="div1" class="div1">
+    <div id="drag1" class="drag1">拖我啊</div>
+  </div>
+</body>
+<script type="text/javascript">
+  // 自运行函数
+  (function(){
+    console.log(111)
+    // 变量初始化
+    var oDiv1=document.getElementById('div1')
+    var oDrag1=document.getElementById('drag1')
+    oDrag1.onmousedown=function(ev){
+      var oEvent=ev||event
+      // 为了兼容各个浏览器，在FireFox浏览器中，事件绑定的函数要获取到事件本身，需要从函数中传入，而IE等浏览器则可以直接使用event或者window.event得到事件本身。
+      // 求相对于自身原点的坐标值
+      var pos=getMousePosition(oEvent)
+      var disX=pos.x - oDrag1.offsetLeft
+      var disY=pos.y - oDrag1.offsetTop
+      // 创建虚框
+      var oBox=document.createElement('div')
+      oBox.className='box'
+      oBox.style.width=oDrag1.offsetWidth-2+'px'
+      oBox.style.height=oDrag1.offsetHeight-2+'px'
+      // 设定虚框的位置,即实体的初始位置
+      oBox.style.left=oDrag1.offsetLeft+'px'
+      oBox.style.top=oDrag1.offsetTop+'px'
+      // 在oDiv1的节点下，添加新的子节点
+      oDiv1.appendChild(oBox)
+      // 事件捕获
+      if(oBox.setCapture){
+        // 兼容Ie7-11
+        oBox.onmousemove=mouseMove
+        oBox.onmouseup=mouseUp
+        // 此方法用于捕获鼠标事件
+        oBox.setCapture()
+      }else{
+        // 兼容FF,Chrome
+        document.onmousemove=mouseMove
+        document.onmouseup=mouseUp
+      }
+
+      // 获取鼠标位置事件
+      function getMousePosition(ev){
+        // scrollTop设置元素中滚动条的垂直偏移
+        var scrollTop=document.documentElement.scrollTop||document.body.scrollTop
+        var scrollLeft=document.documentElement.scrollLeft||document.body.scrollLeft
+        return {x:ev.clientX + scrollLeft,y:ev.clientY+scrollTop}
+      }
+
+      // 鼠标移动的更新函数
+      function mouseMove(ev){
+        // 获取元素顶点的坐标l,t
+        var oEvent=ev||event
+        var pis=getMousePosition(oEvent)
+        var l=pis.x-disX
+        var t=pis.y-disY
+
+        oBox.style.left=l+'px'
+        oBox.style.top=t+'px'
+      }
+
+      // 鼠标抬起后触发的函数
+      function mouseUp(){
+        // 将移动的函数和弹起的函数清空
+        this.onmousemove=null
+        this.onmouseup=null
+        oDrag1.style.left=oBox.offsetLeft+'px'
+        oDrag1.style.top=oBox.offsetTop+'px'
+        // 除去虚框并释放鼠标监控
+        oDiv1.removeChild(oBox)
+        if (oBox.releaseCapture) {
+          oBox.releaseCapture()
+        }
+      }
+      // FF中阻止默认行为
+      return false
+    }
+  })();
+</script>
+</html>
